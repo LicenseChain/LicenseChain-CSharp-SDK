@@ -205,7 +205,7 @@ var client = new LicenseChainClient(new LicenseChainConfig
     ApiKey = "your-api-key",
     AppName = "your-app-name",
     Version = "1.0.0",
-    BaseUrl = "https://api.licensechain.com" // Optional
+    BaseUrl = "https://api.licensechain.app" // Optional
 });
 ```
 
@@ -310,7 +310,7 @@ Add to your `appsettings.json`:
     "ApiKey": "your-api-key",
     "AppName": "your-app-name",
     "Version": "1.0.0",
-    "BaseUrl": "https://api.licensechain.com",
+    "BaseUrl": "https://api.licensechain.app",
     "Timeout": 30,
     "Retries": 3,
     "Debug": false
@@ -341,7 +341,7 @@ export LICENSECHAIN_APP_NAME=your-app-name
 export LICENSECHAIN_APP_VERSION=1.0.0
 
 # Optional
-export LICENSECHAIN_BASE_URL=https://api.licensechain.com
+export LICENSECHAIN_BASE_URL=https://api.licensechain.app
 export LICENSECHAIN_DEBUG=true
 ```
 
@@ -485,10 +485,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🆘 Support
 
-- **Documentation**: [https://docs.licensechain.com/csharp](https://docs.licensechain.com/csharp)
+- **Documentation**: [https://docs.licensechain.app/csharp](https://docs.licensechain.app/csharp)
 - **Issues**: [GitHub Issues](https://github.com/LicenseChain/LicenseChain-CSharp-SDK/issues)
 - **Discord**: [LicenseChain Discord](https://discord.gg/licensechain)
-- **Email**: support@licensechain.com
+- **Email**: support@licensechain.app
 
 ## 🔗 Related Projects
 
