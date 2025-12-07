@@ -385,16 +385,6 @@ namespace LicenseChain
             
             return await GetAsync<Analytics>("/analytics", queryParams);
         }
-        {
-            var queryParams = new Dictionary<string, string>();
-            if (!string.IsNullOrEmpty(request.AppId)) queryParams["app_id"] = request.AppId;
-            if (!string.IsNullOrEmpty(request.StartDate)) queryParams["start_date"] = request.StartDate;
-            if (!string.IsNullOrEmpty(request.EndDate)) queryParams["end_date"] = request.EndDate;
-            if (!string.IsNullOrEmpty(request.Metric)) queryParams["metric"] = request.Metric;
-            if (!string.IsNullOrEmpty(request.Period)) queryParams["period"] = request.Period;
-
-            return await GetAsync<Analytics>("/analytics", queryParams);
-        }
 
         /// <summary>
         /// Get license analytics
