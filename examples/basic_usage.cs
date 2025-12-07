@@ -1,6 +1,9 @@
 // LicenseChain C# SDK - Basic Usage Example
 using System;
-using LicenseChain.SDK;
+using System.Threading.Tasks;
+using LicenseChain;
+using LicenseChain.CSharp.SDK.Models;
+using LicenseChain.CSharp.SDK.Exceptions;
 
 class Program
 {

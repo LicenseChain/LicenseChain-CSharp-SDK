@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Linq;
+using LicenseChain.CSharp.SDK.Models;
 
 namespace LicenseChain
 {

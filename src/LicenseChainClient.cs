@@ -4,8 +4,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using LicenseChain.Exceptions;
-using LicenseChain.Models;
+using LicenseChain.CSharp.SDK.Exceptions;
+using LicenseChain.CSharp.SDK.Models;
 
 namespace LicenseChain
 {
@@ -239,10 +239,11 @@ namespace LicenseChain
         /// <summary>
         /// Validate a license key
         /// </summary>
-        public async Task<LicenseValidationResult> ValidateLicenseAsync(string licenseKey, string appId = null)
+        public async Task<LicenseValidationResult> ValidateLicenseAsync(string licenseKey, string? appId = null)
         {
             var request = new { license_key = licenseKey, app_id = appId };
-            return await PostAsync<LicenseValidationResult>("/licenses/validate", request);
+            var result = await PostAsync<LicenseValidationResult>("/licenses/validate", request);
+            return result ?? new LicenseValidationResult { Valid = false, Message = "Validation failed" };
         }
 
         /// <summary>
