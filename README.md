@@ -193,6 +193,31 @@ client.SetWebhookHandler(async (eventName, data) =>
 await client.StartWebhookListenerAsync();
 ```
 
+## 📚 API Endpoints
+
+All endpoints automatically use the `/v1` prefix when connecting to `https://api.licensechain.app`.
+
+### Base URL
+- **Production**: `https://api.licensechain.app/v1`
+- **Development**: `https://api.licensechain.app/v1`
+
+### Available Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/v1/health` | Health check |
+| `POST` | `/v1/auth/login` | User login |
+| `POST` | `/v1/auth/register` | User registration |
+| `GET` | `/v1/apps` | List applications |
+| `POST` | `/v1/apps` | Create application |
+| `GET` | `/v1/licenses` | List licenses |
+| `POST` | `/v1/licenses/verify` | Verify license |
+| `GET` | `/v1/webhooks` | List webhooks |
+| `POST` | `/v1/webhooks` | Create webhook |
+| `GET` | `/v1/analytics` | Get analytics |
+
+**Note**: The SDK automatically prepends `/v1` to all endpoints, so you only need to specify the path (e.g., `/auth/login` instead of `/v1/auth/login`).
+
 ## 📚 API Reference
 
 ### LicenseChainClient
