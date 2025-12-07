@@ -29,12 +29,13 @@ jobs:
       run: dotnet build --no-restore
     
     - name: Run tests
-      run: dotnet test --no-build --verbosity normal || true`n      continue-on-error: true
+      run: dotnet test --no-build --verbosity normal || true
+      continue-on-error: true
 
   publish:
     needs: test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'release' && github.event.action == 'published'
     
     steps:
     - uses: actions/checkout@v4
