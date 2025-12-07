@@ -471,15 +471,15 @@ namespace LicenseChain
             return JsonConvert.DeserializeObject<T>(content, _jsonSettings);
         }
 
-        private Exception CreateException(System.Net.HttpStatusCode statusCode, ErrorResponse errorResponse)
+        private Exception CreateException(System.Net.HttpStatusCode statusCode, ErrorResponse? errorResponse)
         {
-            var message = errorResponse?.Error ?? "An error occurred";
-            var code = errorResponse?.Code;
+            var message = errorResponse?.Error ?? errorResponse?.Message ?? "An error occurred";
+            var code = errorResponse?.ErrorCode;
             var details = errorResponse?.Details;
 
             return statusCode switch
             {
-                System.Net.HttpStatusCode.BadRequest => new ValidationException(message, code, details),
+                System.Net.HttpStatusCode.BadRequest => new ValidationException(message),
                 System.Net.HttpStatusCode.Unauthorized or System.Net.HttpStatusCode.Forbidden => new AuthenticationException(message, code, details),
                 System.Net.HttpStatusCode.NotFound => new NotFoundException(message, code, details),
                 System.Net.HttpStatusCode.TooManyRequests => new RateLimitException(message, code, details),
