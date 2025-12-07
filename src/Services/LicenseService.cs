@@ -25,10 +25,10 @@ namespace LicenseChain.CSharp.SDK.Services
 
         public async Task<License> CreateLicenseAsync(CreateLicenseRequest request)
         {
-            ValidateNotEmpty(request.UserId, nameof(request.UserId));
-            ValidateNotEmpty(request.ProductId, nameof(request.ProductId));
+            Utils.ValidateNotEmpty(request.UserId, nameof(request.UserId));
+            Utils.ValidateNotEmpty(request.ProductId, nameof(request.ProductId));
 
-            request.Metadata = SanitizeMetadata(request.Metadata);
+            request.Metadata = Utils.SanitizeMetadata(request.Metadata);
 
             var json = JsonConvert.SerializeObject(request);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -59,8 +59,8 @@ namespace LicenseChain.CSharp.SDK.Services
 
         public async Task<License> GetLicenseAsync(string licenseId)
         {
-            ValidateNotEmpty(licenseId, nameof(licenseId));
-            ValidateUuid(licenseId);
+            Utils.ValidateNotEmpty(licenseId, nameof(licenseId));
+            Utils.ValidateUuid(licenseId);
 
             try
             {
@@ -93,10 +93,10 @@ namespace LicenseChain.CSharp.SDK.Services
 
         public async Task<License> UpdateLicenseAsync(string licenseId, UpdateLicenseRequest request)
         {
-            ValidateNotEmpty(licenseId, nameof(licenseId));
-            ValidateUuid(licenseId);
+            Utils.ValidateNotEmpty(licenseId, nameof(licenseId));
+            Utils.ValidateUuid(licenseId);
 
-            request.Metadata = SanitizeMetadata(request.Metadata);
+            request.Metadata = Utils.SanitizeMetadata(request.Metadata);
 
             var json = JsonConvert.SerializeObject(request);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -132,8 +132,8 @@ namespace LicenseChain.CSharp.SDK.Services
 
         public async Task RevokeLicenseAsync(string licenseId)
         {
-            ValidateNotEmpty(licenseId, nameof(licenseId));
-            ValidateUuid(licenseId);
+            Utils.ValidateNotEmpty(licenseId, nameof(licenseId));
+            Utils.ValidateUuid(licenseId);
 
             try
             {
@@ -199,7 +199,7 @@ namespace LicenseChain.CSharp.SDK.Services
             Utils.ValidateNotEmpty(userId, nameof(userId));
             Utils.ValidateUuid(userId);
 
-            var (validPage, validLimit) = ValidatePagination(page, limit);
+            var (validPage, validLimit) = Utils.ValidatePagination(page, limit);
 
             try
             {
