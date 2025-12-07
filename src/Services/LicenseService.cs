@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using LicenseChain.CSharp.SDK.Exceptions;
 using LicenseChain.CSharp.SDK.Models;
 using LicenseChain.CSharp.SDK.Utils;
+using static LicenseChain.CSharp.SDK.Utils.Utils;
 using Newtonsoft.Json;
 
 namespace LicenseChain.CSharp.SDK.Services
@@ -25,10 +26,10 @@ namespace LicenseChain.CSharp.SDK.Services
 
         public async Task<License> CreateLicenseAsync(CreateLicenseRequest request)
         {
-            Utils.ValidateNotEmpty(request.UserId, nameof(request.UserId));
-            Utils.ValidateNotEmpty(request.ProductId, nameof(request.ProductId));
+            ValidateNotEmpty(request.UserId, nameof(request.UserId));
+            ValidateNotEmpty(request.ProductId, nameof(request.ProductId));
 
-            request.Metadata = Utils.SanitizeMetadata(request.Metadata);
+            request.Metadata = SanitizeMetadata(request.Metadata);
 
             var json = JsonConvert.SerializeObject(request);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -59,8 +60,8 @@ namespace LicenseChain.CSharp.SDK.Services
 
         public async Task<License> GetLicenseAsync(string licenseId)
         {
-            Utils.ValidateNotEmpty(licenseId, nameof(licenseId));
-            Utils.ValidateUuid(licenseId);
+            ValidateNotEmpty(licenseId, nameof(licenseId));
+            ValidateUuid(licenseId);
 
             try
             {
@@ -93,10 +94,10 @@ namespace LicenseChain.CSharp.SDK.Services
 
         public async Task<License> UpdateLicenseAsync(string licenseId, UpdateLicenseRequest request)
         {
-            Utils.ValidateNotEmpty(licenseId, nameof(licenseId));
-            Utils.ValidateUuid(licenseId);
+            ValidateNotEmpty(licenseId, nameof(licenseId));
+            ValidateUuid(licenseId);
 
-            request.Metadata = Utils.SanitizeMetadata(request.Metadata);
+            request.Metadata = SanitizeMetadata(request.Metadata);
 
             var json = JsonConvert.SerializeObject(request);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -132,8 +133,8 @@ namespace LicenseChain.CSharp.SDK.Services
 
         public async Task RevokeLicenseAsync(string licenseId)
         {
-            Utils.ValidateNotEmpty(licenseId, nameof(licenseId));
-            Utils.ValidateUuid(licenseId);
+            ValidateNotEmpty(licenseId, nameof(licenseId));
+            ValidateUuid(licenseId);
 
             try
             {
@@ -164,7 +165,7 @@ namespace LicenseChain.CSharp.SDK.Services
 
         public async Task<bool> ValidateLicenseAsync(string licenseKey)
         {
-            Utils.ValidateNotEmpty(licenseKey, nameof(licenseKey));
+            ValidateNotEmpty(licenseKey, nameof(licenseKey));
 
             var request = new { license_key = licenseKey };
             var json = JsonConvert.SerializeObject(request);
@@ -196,10 +197,10 @@ namespace LicenseChain.CSharp.SDK.Services
 
         public async Task<LicenseListResponse> ListUserLicensesAsync(string userId, int page = 1, int limit = 10)
         {
-            Utils.ValidateNotEmpty(userId, nameof(userId));
-            Utils.ValidateUuid(userId);
+            ValidateNotEmpty(userId, nameof(userId));
+            ValidateUuid(userId);
 
-            var (validPage, validLimit) = Utils.ValidatePagination(page, limit);
+            var (validPage, validLimit) = ValidatePagination(page, limit);
 
             try
             {
