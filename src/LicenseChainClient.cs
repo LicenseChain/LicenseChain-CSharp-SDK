@@ -58,32 +58,6 @@ namespace LicenseChain
             // Store additional properties if needed
         }
 
-        // Additional constructor for EnhancedClient compatibility
-        protected LicenseChainClient(string appName, string ownerId, string appSecret, string baseUrl, int timeout, int retries)
-        {
-            if (string.IsNullOrWhiteSpace(apiKey))
-                throw new ArgumentException("API key is required", nameof(apiKey));
-
-            _apiKey = apiKey;
-            _baseUrl = baseUrl.TrimEnd('/');
-            _jsonSettings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                DateFormatHandling = DateFormatHandling.IsoDateFormat,
-                DateTimeZoneHandling = DateTimeZoneHandling.Utc
-            };
-
-            _httpClient = new HttpClient
-            {
-                BaseAddress = new Uri(_baseUrl),
-                Timeout = TimeSpan.FromSeconds(timeout)
-            };
-
-            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
-            _httpClient.DefaultRequestHeaders.Add("User-Agent", "LicenseChain-CSharp-SDK/1.0.0");
-            _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
-        }
-
         // Authentication Methods
 
         /// <summary>
