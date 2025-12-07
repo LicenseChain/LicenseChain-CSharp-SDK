@@ -480,11 +480,15 @@ namespace LicenseChain
             return statusCode switch
             {
                 System.Net.HttpStatusCode.BadRequest => new ValidationException(message),
-                System.Net.HttpStatusCode.Unauthorized or System.Net.HttpStatusCode.Forbidden => new AuthenticationException(message, code, details),
-                System.Net.HttpStatusCode.NotFound => new NotFoundException(message, code, details),
-                System.Net.HttpStatusCode.TooManyRequests => new RateLimitException(message, code, details),
-                >= System.Net.HttpStatusCode.InternalServerError => new ServerException(message, code, details),
-                _ => new LicenseChainException(message, code, details)
+                System.Net.HttpStatusCode.Unauthorized => new AuthenticationException(message),
+                System.Net.HttpStatusCode.Forbidden => new AuthenticationException(message),
+                System.Net.HttpStatusCode.NotFound => new NotFoundException(message),
+                System.Net.HttpStatusCode.TooManyRequests => new RateLimitException(message),
+                System.Net.HttpStatusCode.InternalServerError => new ServerException(message),
+                System.Net.HttpStatusCode.BadGateway => new ServerException(message),
+                System.Net.HttpStatusCode.ServiceUnavailable => new ServerException(message),
+                System.Net.HttpStatusCode.GatewayTimeout => new ServerException(message),
+                _ => new LicenseChainException(code ?? "UNKNOWN_ERROR", message, (int)statusCode)
             };
         }
 
