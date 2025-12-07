@@ -386,7 +386,7 @@ namespace LicenseChain
 
         // HTTP Methods
 
-        private async Task<T> GetAsync<T>(string endpoint, Dictionary<string, string> queryParams = null)
+        private async Task<T> GetAsync<T>(string endpoint, Dictionary<string, string>? queryParams = null)
         {
             // Ensure endpoint starts with /v1 prefix
             var normalizedEndpoint = endpoint.StartsWith("/v1/") 
