@@ -434,7 +434,7 @@ namespace LicenseChain
         /// <summary>
         /// Logout the current user
         /// </summary>
-        public async Task<bool> LogoutAsync()
+        public new async Task<bool> LogoutAsync()
         {
             if (!IsLoggedIn())
                 return true;

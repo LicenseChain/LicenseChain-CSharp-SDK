@@ -189,7 +189,7 @@ namespace LicenseChain
         /// <summary>
         /// Create a new license
         /// </summary>
-        public async Task<License> CreateLicenseAsync(LicenseCreateRequest request)
+        public async Task<License> CreateLicenseAsync(CreateLicenseRequest request)
         {
             return await PostAsync<License>("/licenses", request);
         }
@@ -223,7 +223,7 @@ namespace LicenseChain
         /// <summary>
         /// Update license
         /// </summary>
-        public async Task<License> UpdateLicenseAsync(string licenseId, LicenseUpdateRequest request)
+        public async Task<License> UpdateLicenseAsync(string licenseId, UpdateLicenseRequest request)
         {
             return await PatchAsync<License>($"/licenses/{licenseId}", request);
         }
