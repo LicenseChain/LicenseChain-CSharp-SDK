@@ -24,9 +24,21 @@ namespace LicenseChain.CSharp.SDK.Models
         [JsonProperty("metadata")]
         public Dictionary<string, object> Metadata { get; set; }
 
+        [JsonProperty("subscriptions")]
+        public List<object>? Subscriptions { get; set; }
+
+        [JsonProperty("variables")]
+        public Dictionary<string, object>? Variables { get; set; }
+
+        [JsonProperty("data")]
+        public Dictionary<string, object>? Data { get; set; }
+
         public User()
         {
             Metadata = new Dictionary<string, object>();
+            Subscriptions = new List<object>();
+            Variables = new Dictionary<string, object>();
+            Data = new Dictionary<string, object>();
         }
     }
 

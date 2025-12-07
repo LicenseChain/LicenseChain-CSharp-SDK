@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Linq;
 using LicenseChain.CSharp.SDK.Models;
+using LicenseChain.CSharp.SDK.Exceptions;
 
 namespace LicenseChain
 {
@@ -16,13 +17,26 @@ namespace LicenseChain
     /// </summary>
     public class EnhancedClient : LicenseChainClient
     {
-        private string _sessionId;
-        private User _userData;
+        private string? _sessionId;
+        private User? _userData;
         private bool _initialized;
+        
+        public string AppName { get; }
+        public string OwnerId { get; }
+        public string AppSecret { get; }
 
         public EnhancedClient(string appName, string ownerId, string appSecret, string baseUrl = "https://api.licensechain.app", int timeout = 30, int retries = 3)
-            : base(appName, ownerId, appSecret, baseUrl, timeout, retries)
+            : base(appSecret, baseUrl, timeout)
         {
+            AppName = appName;
+            OwnerId = ownerId;
+            AppSecret = appSecret;
+        }
+        
+        // Wrapper method for MakeRequestAsync
+        private async Task<dynamic> MakeRequestAsync(string endpoint, object data)
+        {
+            return await PostAsync<dynamic>(endpoint, data);
         }
 
         /// <summary>
@@ -99,7 +113,7 @@ namespace LicenseChain
         /// <summary>
         /// Get current user data
         /// </summary>
-        public User GetUserData()
+        public User? GetUserData()
         {
             return _userData;
         }
@@ -107,7 +121,7 @@ namespace LicenseChain
         /// <summary>
         /// Get user's subscription information
         /// </summary>
-        public List<string> GetSubscription()
+        public List<object>? GetSubscription()
         {
             if (!IsLoggedIn())
                 return null;
@@ -117,7 +131,7 @@ namespace LicenseChain
         /// <summary>
         /// Get user's variables
         /// </summary>
-        public Dictionary<string, string> GetVariables()
+        public Dictionary<string, object>? GetVariables()
         {
             if (!IsLoggedIn())
                 return null;

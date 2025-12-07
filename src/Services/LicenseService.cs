@@ -44,10 +44,12 @@ namespace LicenseChain.CSharp.SDK.Services
                     return result.Data;
                 }
 
-                throw new LicenseChainException($"Failed to create license: {responseContent}")
-                {
-                    StatusCode = (int)response.StatusCode
-                };
+                var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(responseContent);
+                throw new LicenseChainException(
+                    errorResponse?.ErrorCode ?? "LICENSE_CREATE_ERROR",
+                    errorResponse?.Message ?? $"Failed to create license: {responseContent}",
+                    (int)response.StatusCode
+                );
             }
             catch (HttpRequestException ex)
             {
@@ -76,10 +78,12 @@ namespace LicenseChain.CSharp.SDK.Services
                     throw new NotFoundException($"License with ID {licenseId} not found");
                 }
 
-                throw new LicenseChainException($"Failed to get license: {responseContent}")
-                {
-                    StatusCode = (int)response.StatusCode
-                };
+                var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(responseContent);
+                throw new LicenseChainException(
+                    errorResponse?.ErrorCode ?? "LICENSE_GET_ERROR",
+                    errorResponse?.Message ?? $"Failed to get license: {responseContent}",
+                    (int)response.StatusCode
+                );
             }
             catch (HttpRequestException ex)
             {
@@ -113,10 +117,12 @@ namespace LicenseChain.CSharp.SDK.Services
                     throw new NotFoundException($"License with ID {licenseId} not found");
                 }
 
-                throw new LicenseChainException($"Failed to update license: {responseContent}")
-                {
-                    StatusCode = (int)response.StatusCode
-                };
+                var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(responseContent);
+                throw new LicenseChainException(
+                    errorResponse?.ErrorCode ?? "LICENSE_UPDATE_ERROR",
+                    errorResponse?.Message ?? $"Failed to update license: {responseContent}",
+                    (int)response.StatusCode
+                );
             }
             catch (HttpRequestException ex)
             {
@@ -142,10 +148,12 @@ namespace LicenseChain.CSharp.SDK.Services
                         throw new NotFoundException($"License with ID {licenseId} not found");
                     }
 
-                    throw new LicenseChainException($"Failed to revoke license: {responseContent}")
-                    {
-                        StatusCode = (int)response.StatusCode
-                    };
+                    var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(responseContent);
+                    throw new LicenseChainException(
+                        errorResponse?.ErrorCode ?? "LICENSE_REVOKE_ERROR",
+                        errorResponse?.Message ?? $"Failed to revoke license: {responseContent}",
+                        (int)response.StatusCode
+                    );
                 }
             }
             catch (HttpRequestException ex)
@@ -173,10 +181,12 @@ namespace LicenseChain.CSharp.SDK.Services
                     return result.Data.Valid;
                 }
 
-                throw new LicenseChainException($"Failed to validate license: {responseContent}")
-                {
-                    StatusCode = (int)response.StatusCode
-                };
+                var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(responseContent);
+                throw new LicenseChainException(
+                    errorResponse?.ErrorCode ?? "LICENSE_VALIDATE_ERROR",
+                    errorResponse?.Message ?? $"Failed to validate license: {responseContent}",
+                    (int)response.StatusCode
+                );
             }
             catch (HttpRequestException ex)
             {
@@ -201,10 +211,12 @@ namespace LicenseChain.CSharp.SDK.Services
                     return JsonConvert.DeserializeObject<LicenseListResponse>(responseContent);
                 }
 
-                throw new LicenseChainException($"Failed to list user licenses: {responseContent}")
-                {
-                    StatusCode = (int)response.StatusCode
-                };
+                var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(responseContent);
+                throw new LicenseChainException(
+                    errorResponse?.ErrorCode ?? "LICENSE_LIST_ERROR",
+                    errorResponse?.Message ?? $"Failed to list user licenses: {responseContent}",
+                    (int)response.StatusCode
+                );
             }
             catch (HttpRequestException ex)
             {
@@ -225,10 +237,12 @@ namespace LicenseChain.CSharp.SDK.Services
                     return result.Data;
                 }
 
-                throw new LicenseChainException($"Failed to get license stats: {responseContent}")
-                {
-                    StatusCode = (int)response.StatusCode
-                };
+                var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(responseContent);
+                throw new LicenseChainException(
+                    errorResponse?.ErrorCode ?? "LICENSE_STATS_ERROR",
+                    errorResponse?.Message ?? $"Failed to get license stats: {responseContent}",
+                    (int)response.StatusCode
+                );
             }
             catch (HttpRequestException ex)
             {

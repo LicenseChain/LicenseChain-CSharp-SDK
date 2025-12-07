@@ -51,6 +51,39 @@ namespace LicenseChain
             _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
         }
 
+        // Protected constructor for EnhancedClient compatibility
+        protected LicenseChainClient(string appName, string ownerId, string appSecret, string baseUrl, int timeout, int retries)
+            : this(appSecret, baseUrl, timeout)
+        {
+            // Store additional properties if needed
+        }
+
+        // Additional constructor for EnhancedClient compatibility
+        protected LicenseChainClient(string appName, string ownerId, string appSecret, string baseUrl, int timeout, int retries)
+        {
+            if (string.IsNullOrWhiteSpace(apiKey))
+                throw new ArgumentException("API key is required", nameof(apiKey));
+
+            _apiKey = apiKey;
+            _baseUrl = baseUrl.TrimEnd('/');
+            _jsonSettings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                DateFormatHandling = DateFormatHandling.IsoDateFormat,
+                DateTimeZoneHandling = DateTimeZoneHandling.Utc
+            };
+
+            _httpClient = new HttpClient
+            {
+                BaseAddress = new Uri(_baseUrl),
+                Timeout = TimeSpan.FromSeconds(timeout)
+            };
+
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
+            _httpClient.DefaultRequestHeaders.Add("User-Agent", "LicenseChain-CSharp-SDK/1.0.0");
+            _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+        }
+
         // Authentication Methods
 
         /// <summary>
@@ -335,6 +368,24 @@ namespace LicenseChain
         /// </summary>
         public async Task<Analytics> GetAnalyticsAsync(AnalyticsRequest request)
         {
+            // Convert DateTime to string if needed
+            var queryParams = new Dictionary<string, string>();
+            if (!string.IsNullOrEmpty(request.AppId))
+                queryParams["app_id"] = request.AppId;
+            if (!string.IsNullOrEmpty(request.StartDate))
+                queryParams["start_date"] = request.StartDate;
+            if (!string.IsNullOrEmpty(request.EndDate))
+                queryParams["end_date"] = request.EndDate;
+            if (!string.IsNullOrEmpty(request.Metric))
+                queryParams["metric"] = request.Metric;
+            if (!string.IsNullOrEmpty(request.Period))
+                queryParams["period"] = request.Period;
+            if (!string.IsNullOrEmpty(request.GroupBy))
+                queryParams["group_by"] = request.GroupBy;
+            
+            return await GetAsync<Analytics>("/analytics", queryParams);
+        }
+        {
             var queryParams = new Dictionary<string, string>();
             if (!string.IsNullOrEmpty(request.AppId)) queryParams["app_id"] = request.AppId;
             if (!string.IsNullOrEmpty(request.StartDate)) queryParams["start_date"] = request.StartDate;
@@ -360,8 +411,12 @@ namespace LicenseChain
         {
             var queryParams = new Dictionary<string, string>();
             if (!string.IsNullOrEmpty(request.AppId)) queryParams["app_id"] = request.AppId;
+            if (request.StartDate.HasValue) queryParams["start_date"] = request.StartDate.Value.ToString("yyyy-MM-ddTHH:mm:ssZ");
+            if (request.EndDate.HasValue) queryParams["end_date"] = request.EndDate.Value.ToString("yyyy-MM-ddTHH:mm:ssZ");
             if (!string.IsNullOrEmpty(request.Period)) queryParams["period"] = request.Period;
             if (!string.IsNullOrEmpty(request.Granularity)) queryParams["granularity"] = request.Granularity;
+            if (!string.IsNullOrEmpty(request.UserId)) queryParams["user_id"] = request.UserId;
+            if (!string.IsNullOrEmpty(request.ProductId)) queryParams["product_id"] = request.ProductId;
 
             return await GetAsync<UsageStats>("/analytics/usage", queryParams);
         }
@@ -386,7 +441,7 @@ namespace LicenseChain
 
         // HTTP Methods
 
-        private async Task<T> GetAsync<T>(string endpoint, Dictionary<string, string>? queryParams = null)
+        protected async Task<T> GetAsync<T>(string endpoint, Dictionary<string, string>? queryParams = null)
         {
             // Ensure endpoint starts with /v1 prefix
             var normalizedEndpoint = endpoint.StartsWith("/v1/") 
@@ -410,7 +465,7 @@ namespace LicenseChain
             return await HandleResponseAsync<T>(response);
         }
 
-        private async Task<T> PostAsync<T>(string endpoint, object data)
+        protected async Task<T> PostAsync<T>(string endpoint, object data)
         {
             // Ensure endpoint starts with /v1 prefix
             var normalizedEndpoint = endpoint.StartsWith("/v1/") 
@@ -425,7 +480,7 @@ namespace LicenseChain
             return await HandleResponseAsync<T>(response);
         }
 
-        private async Task<T> PatchAsync<T>(string endpoint, object data)
+        protected async Task<T> PatchAsync<T>(string endpoint, object data)
         {
             // Ensure endpoint starts with /v1 prefix
             var normalizedEndpoint = endpoint.StartsWith("/v1/") 
@@ -440,7 +495,7 @@ namespace LicenseChain
             return await HandleResponseAsync<T>(response);
         }
 
-        private async Task DeleteAsync(string endpoint)
+        protected async Task DeleteAsync(string endpoint)
         {
             // Ensure endpoint starts with /v1 prefix
             var normalizedEndpoint = endpoint.StartsWith("/v1/") 

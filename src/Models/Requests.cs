@@ -141,6 +141,9 @@ namespace LicenseChain.CSharp.SDK.Models
     // License Requests
     public class LicenseListRequest
     {
+        [JsonProperty("app_id")]
+        public string? AppId { get; set; }
+
         [JsonProperty("page")]
         public int? Page { get; set; }
 
@@ -148,19 +151,22 @@ namespace LicenseChain.CSharp.SDK.Models
         public int? Limit { get; set; }
 
         [JsonProperty("status")]
-        public string Status { get; set; }
+        public string? Status { get; set; }
 
         [JsonProperty("user_id")]
-        public string UserId { get; set; }
+        public string? UserId { get; set; }
+
+        [JsonProperty("user_email")]
+        public string? UserEmail { get; set; }
 
         [JsonProperty("product_id")]
-        public string ProductId { get; set; }
+        public string? ProductId { get; set; }
 
         [JsonProperty("sort_by")]
-        public string SortBy { get; set; }
+        public string? SortBy { get; set; }
 
         [JsonProperty("sort_order")]
-        public string SortOrder { get; set; }
+        public string? SortOrder { get; set; }
     }
 
     // Webhook Requests
@@ -183,6 +189,9 @@ namespace LicenseChain.CSharp.SDK.Models
 
     public class WebhookListRequest
     {
+        [JsonProperty("app_id")]
+        public string? AppId { get; set; }
+
         [JsonProperty("page")]
         public int? Page { get; set; }
 
@@ -190,13 +199,13 @@ namespace LicenseChain.CSharp.SDK.Models
         public int? Limit { get; set; }
 
         [JsonProperty("status")]
-        public string Status { get; set; }
+        public string? Status { get; set; }
 
         [JsonProperty("sort_by")]
-        public string SortBy { get; set; }
+        public string? SortBy { get; set; }
 
         [JsonProperty("sort_order")]
-        public string SortOrder { get; set; }
+        public string? SortOrder { get; set; }
     }
 
     public class WebhookUpdateRequest
@@ -222,29 +231,47 @@ namespace LicenseChain.CSharp.SDK.Models
     // Analytics Requests
     public class AnalyticsRequest
     {
+        [JsonProperty("app_id")]
+        public string? AppId { get; set; }
+
         [JsonProperty("start_date")]
-        public DateTime? StartDate { get; set; }
+        public string? StartDate { get; set; }
 
         [JsonProperty("end_date")]
-        public DateTime? EndDate { get; set; }
+        public string? EndDate { get; set; }
+
+        [JsonProperty("metric")]
+        public string? Metric { get; set; }
+
+        [JsonProperty("period")]
+        public string? Period { get; set; }
 
         [JsonProperty("group_by")]
-        public string GroupBy { get; set; }
+        public string? GroupBy { get; set; }
     }
 
     public class UsageStatsRequest
     {
+        [JsonProperty("app_id")]
+        public string? AppId { get; set; }
+
         [JsonProperty("start_date")]
         public DateTime? StartDate { get; set; }
 
         [JsonProperty("end_date")]
         public DateTime? EndDate { get; set; }
 
+        [JsonProperty("period")]
+        public string? Period { get; set; }
+
+        [JsonProperty("granularity")]
+        public string? Granularity { get; set; }
+
         [JsonProperty("user_id")]
-        public string UserId { get; set; }
+        public string? UserId { get; set; }
 
         [JsonProperty("product_id")]
-        public string ProductId { get; set; }
+        public string? ProductId { get; set; }
     }
 }
 

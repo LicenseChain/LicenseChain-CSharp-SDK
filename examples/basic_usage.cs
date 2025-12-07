@@ -7,64 +7,78 @@ using LicenseChain.CSharp.SDK.Exceptions;
 
 class Program
 {
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
-        Console.WriteLine("?? LicenseChain C# SDK - Basic Usage Example");
+        Console.WriteLine("🚀 LicenseChain C# SDK - Basic Usage Example");
         Console.WriteLine("=" + new string('=', 50));
         
-        // Initialize the client
-        var client = new LicenseChainClient(new LicenseChainConfig
-        {
-            ApiKey = "your-api-key-here",
-            AppName = "MyCSharpApp",
-            Version = "1.0.0",
-            Debug = true
-        });
+        // Initialize the client with your API key
+        var client = new LicenseChainClient("your-api-key-here");
         
-        // Connect to LicenseChain
-        Console.WriteLine("\n Connecting to LicenseChain...");
         try
         {
-            client.Connect();
-            Console.WriteLine(" Connected to LicenseChain successfully!");
+            // Example 1: User Registration
+            Console.WriteLine("\n📝 Registering new user...");
+            var registerRequest = new UserRegistrationRequest
+            {
+                Email = "test@example.com",
+                Password = "password123",
+                Name = "Test User"
+            };
+            var user = await client.RegisterUserAsync(registerRequest);
+            Console.WriteLine($"✅ User registered successfully! ID: {user.Id}");
+            
+            // Example 2: User Login
+            Console.WriteLine("\n🔐 Logging in...");
+            var loginRequest = new LoginRequest
+            {
+                Email = "test@example.com",
+                Password = "password123"
+            };
+            var loginResponse = await client.LoginAsync(loginRequest);
+            Console.WriteLine($"✅ Login successful! Token: {loginResponse.Token.Substring(0, 20)}...");
+            
+            // Example 3: Get Current User
+            Console.WriteLine("\n👤 Getting current user...");
+            var currentUser = await client.GetCurrentUserAsync();
+            Console.WriteLine($"✅ Current user: {currentUser.Name} ({currentUser.Email})");
+            
+            // Example 4: Create Application
+            Console.WriteLine("\n📱 Creating application...");
+            var appRequest = new ApplicationCreateRequest
+            {
+                Name = "My Test App",
+                Description = "A test application"
+            };
+            var app = await client.CreateApplicationAsync(appRequest);
+            Console.WriteLine($"✅ Application created! ID: {app.Id}");
+            
+            // Example 5: License Validation
+            Console.WriteLine("\n🔑 Validating license...");
+            var validateRequest = new LicenseVerificationRequest
+            {
+                LicenseKey = "LICENSE-KEY-HERE"
+            };
+            var validationResult = await client.VerifyLicenseAsync(validateRequest);
+            Console.WriteLine($"✅ License validation: {(validationResult.Valid ? "Valid" : "Invalid")}");
+            
+            // Example 6: Logout
+            Console.WriteLine("\n🚪 Logging out...");
+            await client.LogoutAsync();
+            Console.WriteLine("✅ Logged out successfully!");
         }
         catch (LicenseChainException ex)
         {
-            Console.WriteLine($" Failed to connect: {ex.Message}");
-            return;
+            Console.WriteLine($"❌ Error: {ex.Message} (Code: {ex.ErrorCode}, Status: {ex.StatusCode})");
         }
-        
-        // Example 1: User Registration
-        Console.WriteLine("\n Registering new user...");
-        try
+        catch (Exception ex)
         {
-            var user = client.Register("testuser", "password123", "test@example.com");
-            Console.WriteLine(" User registered successfully!");
-            Console.WriteLine($"Session ID: {user.SessionId}");
+            Console.WriteLine($"❌ Unexpected error: {ex.Message}");
         }
-        catch (LicenseChainException ex)
+        finally
         {
-            Console.WriteLine($" Registration failed: {ex.Message}");
+            client.Dispose();
+            Console.WriteLine("\n✅ Cleanup completed!");
         }
-        
-        // Example 2: License Validation
-        Console.WriteLine("\n Validating license...");
-        try
-        {
-            var license = client.ValidateLicense("LICENSE-KEY-HERE");
-            Console.WriteLine(" License is valid!");
-            Console.WriteLine($"License Key: {license.Key}");
-            Console.WriteLine($"Status: {license.Status}");
-        }
-        catch (LicenseChainException ex)
-        {
-            Console.WriteLine($" License validation failed: {ex.Message}");
-        }
-        
-        // Cleanup
-        Console.WriteLine("\n Cleaning up...");
-        client.Logout();
-        client.Disconnect();
-        Console.WriteLine(" Cleanup completed!");
     }
 }
