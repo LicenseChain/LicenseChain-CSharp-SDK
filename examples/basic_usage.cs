@@ -40,7 +40,7 @@ class Program
             
             // Example 3: Get Current User
             Console.WriteLine("\n👤 Getting current user...");
-            var currentUser = await client.GetCurrentUserAsync();
+            var currentUser = await client.GetUserProfileAsync();
             Console.WriteLine($"✅ Current user: {currentUser.Name} ({currentUser.Email})");
             
             // Example 4: Create Application
@@ -55,11 +55,7 @@ class Program
             
             // Example 5: License Validation
             Console.WriteLine("\n🔑 Validating license...");
-            var validateRequest = new LicenseVerificationRequest
-            {
-                LicenseKey = "LICENSE-KEY-HERE"
-            };
-            var validationResult = await client.VerifyLicenseAsync(validateRequest);
+            var validationResult = await client.ValidateLicenseAsync("LICENSE-KEY-HERE");
             Console.WriteLine($"✅ License validation: {(validationResult.Valid ? "Valid" : "Invalid")}");
             
             // Example 6: Logout
