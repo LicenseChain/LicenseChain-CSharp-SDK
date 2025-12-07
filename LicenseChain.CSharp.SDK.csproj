@@ -13,7 +13,7 @@
     <Product>LicenseChain C# SDK</Product>
     <Description>Official LicenseChain C# SDK for license management and validation</Description>
     <Copyright>Copyright © LicenseChain 2024</Copyright>
-    <PackageLicenseExpression>Elastic-2.0</PackageLicenseExpression>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://docs.licensechain.app/sdks/csharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/LicenseChain/LicenseChain-CSharp-SDK</RepositoryUrl>
     <PackageTags>license;validation;management;api;sdk</PackageTags>
