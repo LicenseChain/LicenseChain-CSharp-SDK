@@ -249,9 +249,9 @@ namespace LicenseChain
         /// <summary>
         /// Revoke a license
         /// </summary>
-        public async Task RevokeLicenseAsync(string licenseId, string reason = null)
+        public async Task RevokeLicenseAsync(string licenseId, string? reason = null)
         {
-            var request = new { reason };
+            object? request = reason != null ? new { reason } : null;
             await PatchAsync<object>($"/licenses/{licenseId}/revoke", request);
         }
 
