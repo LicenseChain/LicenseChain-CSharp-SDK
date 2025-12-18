@@ -167,13 +167,14 @@ namespace LicenseChain.CSharp.SDK.Services
         {
             ValidateNotEmpty(licenseKey, nameof(licenseKey));
 
-            var request = new { license_key = licenseKey };
+            // Use /licenses/verify endpoint with 'key' parameter to match API
+            var request = new { key = licenseKey };
             var json = JsonConvert.SerializeObject(request);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             try
             {
-                var response = await _httpClient.PostAsync($"{_baseUrl}/licenses/validate", content);
+                var response = await _httpClient.PostAsync($"{_baseUrl}/licenses/verify", content);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)

@@ -249,7 +249,8 @@ namespace LicenseChain
         public async Task<LicenseValidationResult> ValidateLicenseAsync(string licenseKey, string? appId = null)
         {
             var request = new { license_key = licenseKey, app_id = appId };
-            var result = await PostAsync<LicenseValidationResult>("/licenses/validate", request);
+            // Use /licenses/verify endpoint to match API
+            var result = await PostAsync<LicenseValidationResult>("/licenses/verify", request);
             return result ?? new LicenseValidationResult { Valid = false, Message = "Validation failed" };
         }
 
