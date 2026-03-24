@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -106,7 +107,7 @@ namespace LicenseChain
         /// </summary>
         public async Task<User> UpdateUserProfileAsync(UserUpdateRequest request)
         {
-            return await PatchAsync<User>("/auth/me", request);
+            throw new ValidationException("updateUserProfile is not available in API v1");
         }
 
         /// <summary>
@@ -198,7 +199,21 @@ namespace LicenseChain
         /// </summary>
         public async Task<License> CreateLicenseAsync(CreateLicenseRequest request)
         {
-            return await PostAsync<License>("/licenses", request);
+            if (string.IsNullOrWhiteSpace(request.AppId))
+                throw new ValidationException("app_id is required");
+            if (string.IsNullOrWhiteSpace(request.IssuedEmail))
+                throw new ValidationException("issued_email is required");
+
+            var payload = new
+            {
+                appId = request.AppId,
+                issuedEmail = request.IssuedEmail,
+                issuedTo = request.IssuedTo,
+                plan = request.Plan,
+                expiresAt = request.ExpiresAtIso
+            };
+
+            return await PostAsync<License>($"/apps/{request.AppId}/licenses", payload);
         }
 
         /// <summary>
@@ -244,12 +259,15 @@ namespace LicenseChain
         }
 
         /// <summary>
-        /// Validate a license key
+        /// Validate a license key. Optional hwuid for ecosystem HMAC/HWUID contract.
         /// </summary>
-        public async Task<LicenseValidationResult> ValidateLicenseAsync(string licenseKey, string? appId = null)
+        public async Task<LicenseValidationResult> ValidateLicenseAsync(string licenseKey, string? appId = null, string? hwuid = null)
         {
-            var request = new { license_key = licenseKey, app_id = appId };
-            // Use /licenses/verify endpoint to match API
+            var request = new {
+                key = licenseKey,
+                app_id = string.IsNullOrWhiteSpace(appId) ? null : appId,
+                hwuid = string.IsNullOrWhiteSpace(hwuid) ? GenerateDefaultHwuid() : hwuid?.Trim()
+            };
             var result = await PostAsync<LicenseValidationResult>("/licenses/verify", request);
             return result ?? new LicenseValidationResult { Valid = false, Message = "Validation failed" };
         }
@@ -358,7 +376,7 @@ namespace LicenseChain
             if (!string.IsNullOrEmpty(request.GroupBy))
                 queryParams["group_by"] = request.GroupBy;
             
-            return await GetAsync<Analytics>("/analytics", queryParams);
+            return await GetAsync<Analytics>("/analytics/stats", queryParams);
         }
 
         /// <summary>
@@ -393,7 +411,7 @@ namespace LicenseChain
         /// </summary>
         public async Task<SystemStatus> GetSystemStatusAsync()
         {
-            return await GetAsync<SystemStatus>("/status");
+            return await GetAsync<SystemStatus>("/health");
         }
 
         /// <summary>
@@ -510,6 +528,14 @@ namespace LicenseChain
                 System.Net.HttpStatusCode.GatewayTimeout => new ServerException(message),
                 _ => new LicenseChainException(code ?? "UNKNOWN_ERROR", message, (int)statusCode)
             };
+        }
+
+        private static string GenerateDefaultHwuid()
+        {
+            var raw = $"licensechain|csharp|{Environment.MachineName}|{Environment.OSVersion}|{Environment.ProcessorCount}";
+            using var sha = SHA256.Create();
+            var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(raw));
+            return Convert.ToHexString(bytes).ToLowerInvariant();
         }
 
         /// <summary>

@@ -41,6 +41,21 @@ namespace LicenseChain.CSharp.SDK.Models
 
     public class CreateLicenseRequest
     {
+        [JsonProperty("app_id")]
+        public string AppId { get; set; }
+
+        [JsonProperty("issued_email")]
+        public string IssuedEmail { get; set; }
+
+        [JsonProperty("issued_to")]
+        public string IssuedTo { get; set; }
+
+        [JsonProperty("plan")]
+        public string Plan { get; set; }
+
+        [JsonProperty("expires_at")]
+        public string ExpiresAtIso { get; set; }
+
         [JsonProperty("user_id")]
         public string UserId { get; set; }
 

@@ -175,7 +175,7 @@ namespace LicenseChain.CSharp.SDK.Models
     // API Key Response
     public class ApiKeyResponse
     {
-        [JsonProperty("api_key")]
+        [JsonProperty("apiKey")]
         public string ApiKey { get; set; }
 
         [JsonProperty("created_at")]

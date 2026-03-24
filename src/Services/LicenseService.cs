@@ -163,12 +163,11 @@ namespace LicenseChain.CSharp.SDK.Services
             }
         }
 
-        public async Task<bool> ValidateLicenseAsync(string licenseKey)
+        public async Task<bool> ValidateLicenseAsync(string licenseKey, string hwuid = null)
         {
             ValidateNotEmpty(licenseKey, nameof(licenseKey));
-
-            // Use /licenses/verify endpoint with 'key' parameter to match API
-            var request = new { key = licenseKey };
+            var request = new Dictionary<string, string> { ["key"] = licenseKey };
+            if (!string.IsNullOrWhiteSpace(hwuid)) request["hwuid"] = hwuid.Trim();
             var json = JsonConvert.SerializeObject(request);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 

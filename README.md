@@ -525,3 +525,19 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **Made with ❤️ for the .NET community**
+
+## LicenseChain API (v1)
+
+This SDK targets the **LicenseChain HTTP API v1** implemented by the open-source API service.
+
+- **Production base URL:** https://api.licensechain.app/v1
+- **API repository (source of routes & behavior):** https://github.com/LicenseChain/api
+- **Baseline REST mapping (documented for integrators):**
+  - GET /health
+  - POST /auth/register
+  - POST /licenses/verify
+  - PATCH /licenses/:id/revoke
+  - PATCH /licenses/:id/activate
+  - PATCH /licenses/:id/extend
+  - GET /analytics/stats
+
