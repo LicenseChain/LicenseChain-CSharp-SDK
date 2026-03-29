@@ -5,6 +5,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.IdentityModel.Tokens.Jwt;
 using LicenseChain.CSharp.SDK.Exceptions;
 using LicenseChain.CSharp.SDK.Models;
 
@@ -270,6 +272,31 @@ namespace LicenseChain
             };
             var result = await PostAsync<LicenseValidationResult>("/licenses/verify", request);
             return result ?? new LicenseValidationResult { Valid = false, Message = "Validation failed" };
+        }
+
+        /// <summary>
+        /// Full POST /licenses/verify JSON (valid, optional license_token, license_jwks_uri, etc.).
+        /// </summary>
+        public async Task<JObject> VerifyLicenseWithDetailsAsync(string licenseKey, string? appId = null, string? hwuid = null)
+        {
+            var request = new
+            {
+                key = licenseKey,
+                app_id = string.IsNullOrWhiteSpace(appId) ? null : appId,
+                hwuid = string.IsNullOrWhiteSpace(hwuid) ? GenerateDefaultHwuid() : hwuid.Trim()
+            };
+            return await PostAsync<JObject>("/licenses/verify", request);
+        }
+
+        /// <summary>
+        /// Verify license_token from verify response using JWKS (RS256).
+        /// </summary>
+        public Task<JwtSecurityToken> VerifyLicenseAssertionJwtAsync(
+            string token,
+            string jwksUrl,
+            LicenseAssertion.VerifyLicenseAssertionOptions? options = null)
+        {
+            return LicenseAssertion.VerifyLicenseAssertionJwtAsync(_httpClient, token, jwksUrl, options);
         }
 
         /// <summary>
