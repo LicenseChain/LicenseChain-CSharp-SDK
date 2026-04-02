@@ -492,6 +492,7 @@ See the `examples/` directory for complete examples:
 - `basic_usage.cs` - Basic SDK usage
 - `advanced_features.cs` - Advanced features and configuration
 - `webhook_integration.cs` - Webhook handling
+- `examples/jwks_only/` — RS256 `license_token` via JWKS only (`dotnet run --project examples/jwks_only/jwks_only.csproj`; [JWKS_EXAMPLE_PRIORITY](https://github.com/LicenseChain/sdks/blob/main/docs/JWKS_EXAMPLE_PRIORITY.md))
 
 ## 🤝 Contributing
 

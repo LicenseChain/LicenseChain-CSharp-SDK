@@ -1,20 +1,27 @@
-# JWKS-only license assertion verify (C#)
+# JWKS-only (`license_token`)
 
-Verifies a **`license_token`** using **`LicenseAssertion.VerifyLicenseAssertionJwtAsync`** against **`GET /v1/licenses/jwks`**. Claim **`token_use`** must be **`licensechain_license_v1`**.
+Verifies a Core API **`license_token`** using **`GET /v1/licenses/jwks`** (RS256), without calling `VerifyLicenseWithDetailsAsync` first. Same env contract as **Go / Rust / PHP** `jwks_only` samples ([JWKS_EXAMPLE_PRIORITY](https://github.com/LicenseChain/sdks/blob/main/docs/JWKS_EXAMPLE_PRIORITY.md)).
+
+## Env
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `LICENSECHAIN_LICENSE_TOKEN` | yes | JWT string from a successful verify response |
+| `LICENSECHAIN_LICENSE_JWKS_URI` | yes | e.g. `https://api.licensechain.app/v1/licenses/jwks` |
+| `LICENSECHAIN_EXPECTED_APP_ID` | no | If set, `aud` must include this app UUID |
 
 ## Run
 
-From this directory:
+From the **C# SDK repo root**:
 
 ```bash
-dotnet run --project jwks_only.csproj -- "eyJ..." 
+dotnet run --project examples/jwks_only/jwks_only.csproj
 ```
 
-Or with a custom JWKS URL as the second argument. Environment variables:
+With env:
 
-| Variable | Purpose |
-|----------|---------|
-| `LICENSE_TOKEN` | JWT string (if not passed as first argument) |
-| `LICENSE_JWKS_URI` | Default `https://api.licensechain.app/v1/licenses/jwks` |
-| `LICENSE_JWT_ISSUER` | If set, issuer validation is enforced |
-| `EXPECTED_APP_ID` | If set, `aud` must match |
+```bash
+export LICENSECHAIN_LICENSE_TOKEN="eyJ..."
+export LICENSECHAIN_LICENSE_JWKS_URI="https://api.licensechain.app/v1/licenses/jwks"
+dotnet run --project examples/jwks_only/jwks_only.csproj
+```
