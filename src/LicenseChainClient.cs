@@ -29,13 +29,13 @@ namespace LicenseChain
         /// <param name="apiKey">Your LicenseChain API key</param>
         /// <param name="baseUrl">Base URL for the LicenseChain API (optional)</param>
         /// <param name="timeout">Request timeout in seconds (optional, default: 30)</param>
-        public LicenseChainClient(string apiKey, string baseUrl = "https://api.licensechain.app", int timeout = 30)
+        public LicenseChainClient(string apiKey, string baseUrl = "https://api.licensechain.app/v1", int timeout = 30)
         {
             if (string.IsNullOrWhiteSpace(apiKey))
                 throw new ArgumentException("API key is required", nameof(apiKey));
 
             _apiKey = apiKey;
-            _baseUrl = baseUrl.TrimEnd('/');
+            _baseUrl = NormalizeBaseUrl(baseUrl);
             _jsonSettings = new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore,
@@ -453,14 +453,7 @@ namespace LicenseChain
 
         protected async Task<T> GetAsync<T>(string endpoint, Dictionary<string, string>? queryParams = null)
         {
-            // Ensure endpoint starts with /v1 prefix
-            var normalizedEndpoint = endpoint.StartsWith("/v1/") 
-                ? endpoint 
-                : endpoint.StartsWith("/") 
-                    ? "/v1" + endpoint 
-                    : "/v1/" + endpoint;
-            
-            var url = normalizedEndpoint;
+            var url = BuildUrl(endpoint);
             if (queryParams != null && queryParams.Count > 0)
             {
                 var queryString = new StringBuilder("?");
@@ -477,45 +470,55 @@ namespace LicenseChain
 
         protected async Task<T> PostAsync<T>(string endpoint, object data)
         {
-            // Ensure endpoint starts with /v1 prefix
-            var normalizedEndpoint = endpoint.StartsWith("/v1/") 
-                ? endpoint 
-                : endpoint.StartsWith("/") 
-                    ? "/v1" + endpoint 
-                    : "/v1/" + endpoint;
-            
             var json = data != null ? JsonConvert.SerializeObject(data, _jsonSettings) : "{}";
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(normalizedEndpoint, content);
+            var response = await _httpClient.PostAsync(BuildUrl(endpoint), content);
             return await HandleResponseAsync<T>(response);
         }
 
         protected async Task<T> PatchAsync<T>(string endpoint, object data)
         {
-            // Ensure endpoint starts with /v1 prefix
-            var normalizedEndpoint = endpoint.StartsWith("/v1/") 
-                ? endpoint 
-                : endpoint.StartsWith("/") 
-                    ? "/v1" + endpoint 
-                    : "/v1/" + endpoint;
-            
             var json = data != null ? JsonConvert.SerializeObject(data, _jsonSettings) : "{}";
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PatchAsync(normalizedEndpoint, content);
+            var response = await _httpClient.PatchAsync(BuildUrl(endpoint), content);
             return await HandleResponseAsync<T>(response);
         }
 
         protected async Task DeleteAsync(string endpoint)
         {
-            // Ensure endpoint starts with /v1 prefix
-            var normalizedEndpoint = endpoint.StartsWith("/v1/") 
-                ? endpoint 
-                : endpoint.StartsWith("/") 
-                    ? "/v1" + endpoint 
-                    : "/v1/" + endpoint;
-            
-            var response = await _httpClient.DeleteAsync(normalizedEndpoint);
+            var response = await _httpClient.DeleteAsync(BuildUrl(endpoint));
             await HandleResponseAsync<object>(response);
+        }
+
+        protected string BuildUrl(string endpoint)
+        {
+            return _baseUrl + NormalizeEndpoint(endpoint);
+        }
+
+        protected string NormalizeEndpoint(string endpoint)
+        {
+            var baseHasV1 = _baseUrl.EndsWith("/v1", StringComparison.OrdinalIgnoreCase);
+            if (endpoint.StartsWith("/v1/", StringComparison.OrdinalIgnoreCase))
+            {
+                return baseHasV1 ? endpoint.Substring(3) : endpoint;
+            }
+
+            if (endpoint.StartsWith("/", StringComparison.Ordinal))
+            {
+                return baseHasV1 ? endpoint : "/v1" + endpoint;
+            }
+
+            return baseHasV1 ? "/" + endpoint : "/v1/" + endpoint;
+        }
+
+        private static string NormalizeBaseUrl(string baseUrl)
+        {
+            var normalized = string.IsNullOrWhiteSpace(baseUrl)
+                ? "https://api.licensechain.app/v1"
+                : baseUrl.Trim().TrimEnd('/');
+            return normalized.EndsWith("/v1", StringComparison.OrdinalIgnoreCase)
+                ? normalized
+                : normalized + "/v1";
         }
 
         private async Task<T> HandleResponseAsync<T>(HttpResponseMessage response)

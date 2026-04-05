@@ -25,7 +25,7 @@ namespace LicenseChain
         public string OwnerId { get; }
         public string AppSecret { get; }
 
-        public EnhancedClient(string appName, string ownerId, string appSecret, string baseUrl = "https://api.licensechain.app", int timeout = 30, int retries = 3)
+        public EnhancedClient(string appName, string ownerId, string appSecret, string baseUrl = "https://api.licensechain.app/v1", int timeout = 30, int retries = 3)
             : base(appSecret, baseUrl, timeout)
         {
             AppName = appName;

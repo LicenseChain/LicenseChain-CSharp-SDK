@@ -21,7 +21,7 @@ namespace LicenseChain.CSharp.SDK.Services
         {
             _httpClient = httpClient;
             _apiKey = apiKey;
-            _baseUrl = baseUrl;
+            _baseUrl = NormalizeBaseUrl(baseUrl);
         }
 
         public async Task<License> CreateLicenseAsync(CreateLicenseRequest request)
@@ -36,7 +36,7 @@ namespace LicenseChain.CSharp.SDK.Services
 
             try
             {
-                var response = await _httpClient.PostAsync($"{_baseUrl}/licenses", content);
+                var response = await _httpClient.PostAsync(BuildUrl("/licenses"), content);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
@@ -65,7 +65,7 @@ namespace LicenseChain.CSharp.SDK.Services
 
             try
             {
-                var response = await _httpClient.GetAsync($"{_baseUrl}/licenses/{licenseId}");
+                var response = await _httpClient.GetAsync(BuildUrl($"/licenses/{licenseId}"));
                 var responseContent = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
@@ -104,7 +104,7 @@ namespace LicenseChain.CSharp.SDK.Services
 
             try
             {
-                var response = await _httpClient.PutAsync($"{_baseUrl}/licenses/{licenseId}", content);
+                var response = await _httpClient.PutAsync(BuildUrl($"/licenses/{licenseId}"), content);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
@@ -138,7 +138,7 @@ namespace LicenseChain.CSharp.SDK.Services
 
             try
             {
-                var response = await _httpClient.DeleteAsync($"{_baseUrl}/licenses/{licenseId}");
+                var response = await _httpClient.DeleteAsync(BuildUrl($"/licenses/{licenseId}"));
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -173,7 +173,7 @@ namespace LicenseChain.CSharp.SDK.Services
 
             try
             {
-                var response = await _httpClient.PostAsync($"{_baseUrl}/licenses/verify", content);
+                var response = await _httpClient.PostAsync(BuildUrl("/licenses/verify"), content);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
@@ -204,7 +204,7 @@ namespace LicenseChain.CSharp.SDK.Services
 
             try
             {
-                var response = await _httpClient.GetAsync($"{_baseUrl}/licenses?user_id={userId}&page={validPage}&limit={validLimit}");
+                var response = await _httpClient.GetAsync($"{BuildUrl("/licenses")}?user_id={userId}&page={validPage}&limit={validLimit}");
                 var responseContent = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
@@ -229,7 +229,7 @@ namespace LicenseChain.CSharp.SDK.Services
         {
             try
             {
-                var response = await _httpClient.GetAsync($"{_baseUrl}/licenses/stats");
+                var response = await _httpClient.GetAsync(BuildUrl("/licenses/stats"));
                 var responseContent = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
@@ -249,6 +249,26 @@ namespace LicenseChain.CSharp.SDK.Services
             {
                 throw new NetworkException("Network error occurred while getting license stats", ex);
             }
+        }
+
+        private static string NormalizeBaseUrl(string baseUrl)
+        {
+            var normalized = string.IsNullOrWhiteSpace(baseUrl)
+                ? "https://api.licensechain.app/v1"
+                : baseUrl.Trim().TrimEnd('/');
+            return normalized.EndsWith("/v1", StringComparison.OrdinalIgnoreCase)
+                ? normalized
+                : normalized + "/v1";
+        }
+
+        private string BuildUrl(string endpoint)
+        {
+            if (endpoint.StartsWith("/v1/", StringComparison.OrdinalIgnoreCase))
+            {
+                return _baseUrl + endpoint.Substring(3);
+            }
+
+            return _baseUrl + (endpoint.StartsWith("/", StringComparison.Ordinal) ? endpoint : "/" + endpoint);
         }
     }
 

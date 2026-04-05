@@ -195,7 +195,7 @@ await client.StartWebhookListenerAsync();
 
 ## 📚 API Endpoints
 
-All endpoints automatically use the `/v1` prefix when connecting to `https://api.licensechain.app`.
+Use the canonical API base URL `https://api.licensechain.app/v1`. The SDK also accepts the root host and normalizes requests to the same API version.
 
 ### Base URL
 - **Production**: `https://api.licensechain.app/v1`
@@ -216,7 +216,7 @@ All endpoints automatically use the `/v1` prefix when connecting to `https://api
 | `POST` | `/v1/webhooks` | Create webhook |
 | `GET` | `/v1/analytics` | Get analytics |
 
-**Note**: The SDK automatically prepends `/v1` to all endpoints, so you only need to specify the path (e.g., `/auth/login` instead of `/v1/auth/login`).
+**Note**: The SDK accepts either the root host or the canonical `/v1` base and normalizes endpoint requests automatically.
 
 ## 📚 API Reference
 
@@ -230,7 +230,7 @@ var client = new LicenseChainClient(new LicenseChainConfig
     ApiKey = "your-api-key",
     AppName = "your-app-name",
     Version = "1.0.0",
-    BaseUrl = "https://api.licensechain.app" // Optional
+    BaseUrl = "https://api.licensechain.app/v1" // Optional
 });
 ```
 
@@ -335,7 +335,7 @@ Add to your `appsettings.json`:
     "ApiKey": "your-api-key",
     "AppName": "your-app-name",
     "Version": "1.0.0",
-    "BaseUrl": "https://api.licensechain.app",
+    "BaseUrl": "https://api.licensechain.app/v1",
     "Timeout": 30,
     "Retries": 3,
     "Debug": false
@@ -366,7 +366,7 @@ export LICENSECHAIN_APP_NAME=your-app-name
 export LICENSECHAIN_APP_VERSION=1.0.0
 
 # Optional
-export LICENSECHAIN_BASE_URL=https://api.licensechain.app
+export LICENSECHAIN_BASE_URL=https://api.licensechain.app/v1
 export LICENSECHAIN_DEBUG=true
 ```
 
