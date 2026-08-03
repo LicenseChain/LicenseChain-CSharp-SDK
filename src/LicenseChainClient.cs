@@ -1,0 +1,589 @@
+using System;
+using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.IdentityModel.Tokens.Jwt;
+using LicenseChain.CSharp.SDK.Exceptions;
+using LicenseChain.CSharp.SDK.Models;
+
+namespace LicenseChain
+{
+    /// <summary>
+    /// Main client for interacting with the LicenseChain API
+    /// </summary>
+    public class LicenseChainClient : IDisposable
+    {
+        private readonly HttpClient _httpClient;
+        private readonly string _baseUrl;
+        private readonly string _apiKey;
+        private readonly JsonSerializerSettings _jsonSettings;
+        private bool _disposed = false;
+
+        /// <summary>
+        /// Initializes a new instance of the LicenseChainClient class
+        /// </summary>
+        /// <param name="apiKey">Your LicenseChain API key</param>
+        /// <param name="baseUrl">Base URL for the LicenseChain API (optional)</param>
+        /// <param name="timeout">Request timeout in seconds (optional, default: 30)</param>
+        public LicenseChainClient(string apiKey, string baseUrl = "https://api.licensechain.app/v1", int timeout = 30)
+        {
+            if (string.IsNullOrWhiteSpace(apiKey))
+                throw new ArgumentException("API key is required", nameof(apiKey));
+
+            _apiKey = apiKey;
+            _baseUrl = NormalizeBaseUrl(baseUrl);
+            _jsonSettings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                DateFormatHandling = DateFormatHandling.IsoDateFormat,
+                DateTimeZoneHandling = DateTimeZoneHandling.Utc
+            };
+
+            _httpClient = new HttpClient
+            {
+                BaseAddress = new Uri(_baseUrl),
+                Timeout = TimeSpan.FromSeconds(timeout)
+            };
+
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
+            _httpClient.DefaultRequestHeaders.Add("User-Agent", "LicenseChain-CSharp-SDK/1.0.0");
+            _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+        }
+
+        // Protected constructor for EnhancedClient compatibility
+        protected LicenseChainClient(string appName, string ownerId, string appSecret, string baseUrl, int timeout, int retries)
+            : this(appSecret, baseUrl, timeout)
+        {
+            // Store additional properties if needed
+        }
+
+        // Authentication Methods
+
+        /// <summary>
+        /// Register a new user
+        /// </summary>
+        public async Task<User> RegisterUserAsync(UserRegistrationRequest request)
+        {
+            return await PostAsync<User>("/auth/register", request);
+        }
+
+        /// <summary>
+        /// Login with email and password
+        /// </summary>
+        public async Task<LoginResponse> LoginAsync(LoginRequest request)
+        {
+            return await PostAsync<LoginResponse>("/auth/login", request);
+        }
+
+        /// <summary>
+        /// Logout the current user
+        /// </summary>
+        public async Task LogoutAsync()
+        {
+            await PostAsync<object>("/auth/logout", null);
+        }
+
+        /// <summary>
+        /// Refresh authentication token
+        /// </summary>
+        public async Task<TokenRefreshResponse> RefreshTokenAsync(string refreshToken)
+        {
+            var request = new { refresh_token = refreshToken };
+            return await PostAsync<TokenRefreshResponse>("/auth/refresh", request);
+        }
+
+        /// <summary>
+        /// Get current user profile
+        /// </summary>
+        public async Task<User> GetUserProfileAsync()
+        {
+            return await GetAsync<User>("/auth/me");
+        }
+
+        /// <summary>
+        /// Update user profile
+        /// </summary>
+        public async Task<User> UpdateUserProfileAsync(UserUpdateRequest request)
+        {
+            throw new ValidationException("updateUserProfile is not available in API v1");
+        }
+
+        /// <summary>
+        /// Change user password
+        /// </summary>
+        public async Task ChangePasswordAsync(PasswordChangeRequest request)
+        {
+            await PatchAsync<object>("/auth/password", request);
+        }
+
+        /// <summary>
+        /// Request password reset
+        /// </summary>
+        public async Task RequestPasswordResetAsync(string email)
+        {
+            var request = new { email };
+            await PostAsync<object>("/auth/forgot-password", request);
+        }
+
+        /// <summary>
+        /// Reset password with token
+        /// </summary>
+        public async Task ResetPasswordAsync(PasswordResetRequest request)
+        {
+            await PostAsync<object>("/auth/reset-password", request);
+        }
+
+        // Application Management
+
+        /// <summary>
+        /// Create a new application
+        /// </summary>
+        public async Task<Application> CreateApplicationAsync(ApplicationCreateRequest request)
+        {
+            return await PostAsync<Application>("/apps", request);
+        }
+
+        /// <summary>
+        /// List applications with pagination
+        /// </summary>
+        public async Task<PaginatedResponse<Application>> ListApplicationsAsync(ApplicationListRequest request)
+        {
+            var queryParams = new Dictionary<string, string>();
+            if (request.Page.HasValue) queryParams["page"] = request.Page.Value.ToString();
+            if (request.Limit.HasValue) queryParams["limit"] = request.Limit.Value.ToString();
+            if (!string.IsNullOrEmpty(request.Status)) queryParams["status"] = request.Status;
+            if (!string.IsNullOrEmpty(request.SortBy)) queryParams["sort_by"] = request.SortBy;
+            if (!string.IsNullOrEmpty(request.SortOrder)) queryParams["sort_order"] = request.SortOrder;
+
+            return await GetAsync<PaginatedResponse<Application>>("/apps", queryParams);
+        }
+
+        /// <summary>
+        /// Get application details
+        /// </summary>
+        public async Task<Application> GetApplicationAsync(string appId)
+        {
+            return await GetAsync<Application>($"/apps/{appId}");
+        }
+
+        /// <summary>
+        /// Update application
+        /// </summary>
+        public async Task<Application> UpdateApplicationAsync(string appId, ApplicationUpdateRequest request)
+        {
+            return await PatchAsync<Application>($"/apps/{appId}", request);
+        }
+
+        /// <summary>
+        /// Delete application
+        /// </summary>
+        public async Task DeleteApplicationAsync(string appId)
+        {
+            await DeleteAsync($"/apps/{appId}");
+        }
+
+        /// <summary>
+        /// Regenerate API key for application
+        /// </summary>
+        public async Task<ApiKeyResponse> RegenerateApiKeyAsync(string appId)
+        {
+            return await PostAsync<ApiKeyResponse>($"/apps/{appId}/regenerate-key", null);
+        }
+
+        // License Management
+
+        /// <summary>
+        /// Create a new license
+        /// </summary>
+        public async Task<License> CreateLicenseAsync(CreateLicenseRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.AppId))
+                throw new ValidationException("app_id is required");
+            if (string.IsNullOrWhiteSpace(request.IssuedEmail))
+                throw new ValidationException("issued_email is required");
+
+            var payload = new
+            {
+                appId = request.AppId,
+                issuedEmail = request.IssuedEmail,
+                issuedTo = request.IssuedTo,
+                plan = request.Plan,
+                expiresAt = request.ExpiresAtIso
+            };
+
+            return await PostAsync<License>($"/apps/{request.AppId}/licenses", payload);
+        }
+
+        /// <summary>
+        /// List licenses with filters
+        /// </summary>
+        public async Task<PaginatedResponse<License>> ListLicensesAsync(LicenseListRequest request)
+        {
+            var queryParams = new Dictionary<string, string>();
+            if (request.Page.HasValue) queryParams["page"] = request.Page.Value.ToString();
+            if (request.Limit.HasValue) queryParams["limit"] = request.Limit.Value.ToString();
+            if (!string.IsNullOrEmpty(request.AppId)) queryParams["app_id"] = request.AppId;
+            if (!string.IsNullOrEmpty(request.Status)) queryParams["status"] = request.Status;
+            if (!string.IsNullOrEmpty(request.UserId)) queryParams["user_id"] = request.UserId;
+            if (!string.IsNullOrEmpty(request.UserEmail)) queryParams["user_email"] = request.UserEmail;
+            if (!string.IsNullOrEmpty(request.SortBy)) queryParams["sort_by"] = request.SortBy;
+            if (!string.IsNullOrEmpty(request.SortOrder)) queryParams["sort_order"] = request.SortOrder;
+
+            return await GetAsync<PaginatedResponse<License>>("/licenses", queryParams);
+        }
+
+        /// <summary>
+        /// Get license details
+        /// </summary>
+        public async Task<License> GetLicenseAsync(string licenseId)
+        {
+            return await GetAsync<License>($"/licenses/{licenseId}");
+        }
+
+        /// <summary>
+        /// Update license
+        /// </summary>
+        public async Task<License> UpdateLicenseAsync(string licenseId, UpdateLicenseRequest request)
+        {
+            return await PatchAsync<License>($"/licenses/{licenseId}", request);
+        }
+
+        /// <summary>
+        /// Delete license
+        /// </summary>
+        public async Task DeleteLicenseAsync(string licenseId)
+        {
+            await DeleteAsync($"/licenses/{licenseId}");
+        }
+
+        /// <summary>
+        /// Validate a license key. Optional hwuid for ecosystem HMAC/HWUID contract.
+        /// </summary>
+        public async Task<LicenseValidationResult> ValidateLicenseAsync(string licenseKey, string? appId = null, string? hwuid = null)
+        {
+            var request = new {
+                key = licenseKey,
+                app_id = string.IsNullOrWhiteSpace(appId) ? null : appId,
+                hwuid = string.IsNullOrWhiteSpace(hwuid) ? GenerateDefaultHwuid() : hwuid?.Trim()
+            };
+            var result = await PostAsync<LicenseValidationResult>("/licenses/verify", request);
+            return result ?? new LicenseValidationResult { Valid = false, Message = "Validation failed" };
+        }
+
+        /// <summary>
+        /// Full POST /licenses/verify JSON (valid, optional license_token, license_jwks_uri, etc.).
+        /// </summary>
+        public async Task<JObject> VerifyLicenseWithDetailsAsync(string licenseKey, string? appId = null, string? hwuid = null)
+        {
+            var request = new
+            {
+                key = licenseKey,
+                app_id = string.IsNullOrWhiteSpace(appId) ? null : appId,
+                hwuid = string.IsNullOrWhiteSpace(hwuid) ? GenerateDefaultHwuid() : hwuid.Trim()
+            };
+            return await PostAsync<JObject>("/licenses/verify", request);
+        }
+
+        /// <summary>
+        /// Verify license_token from verify response using JWKS (RS256).
+        /// </summary>
+        public Task<JwtSecurityToken> VerifyLicenseAssertionJwtAsync(
+            string token,
+            string jwksUrl,
+            LicenseAssertion.VerifyLicenseAssertionOptions? options = null)
+        {
+            return LicenseAssertion.VerifyLicenseAssertionJwtAsync(_httpClient, token, jwksUrl, options);
+        }
+
+        /// <summary>
+        /// Revoke a license
+        /// </summary>
+        public async Task RevokeLicenseAsync(string licenseId, string? reason = null)
+        {
+            object? request = reason != null ? new { reason } : null;
+            await PatchAsync<object>($"/licenses/{licenseId}/revoke", request);
+        }
+
+        /// <summary>
+        /// Activate a license
+        /// </summary>
+        public async Task ActivateLicenseAsync(string licenseId)
+        {
+            await PatchAsync<object>($"/licenses/{licenseId}/activate", null);
+        }
+
+        /// <summary>
+        /// Extend license expiration
+        /// </summary>
+        public async Task ExtendLicenseAsync(string licenseId, string expiresAt)
+        {
+            var request = new { expires_at = expiresAt };
+            await PatchAsync<object>($"/licenses/{licenseId}/extend", request);
+        }
+
+        // Webhook Management
+
+        /// <summary>
+        /// Create a webhook
+        /// </summary>
+        public async Task<Webhook> CreateWebhookAsync(WebhookCreateRequest request)
+        {
+            return await PostAsync<Webhook>("/webhooks", request);
+        }
+
+        /// <summary>
+        /// List webhooks
+        /// </summary>
+        public async Task<PaginatedResponse<Webhook>> ListWebhooksAsync(WebhookListRequest request)
+        {
+            var queryParams = new Dictionary<string, string>();
+            if (request.Page.HasValue) queryParams["page"] = request.Page.Value.ToString();
+            if (request.Limit.HasValue) queryParams["limit"] = request.Limit.Value.ToString();
+            if (!string.IsNullOrEmpty(request.AppId)) queryParams["app_id"] = request.AppId;
+            if (!string.IsNullOrEmpty(request.Status)) queryParams["status"] = request.Status;
+
+            return await GetAsync<PaginatedResponse<Webhook>>("/webhooks", queryParams);
+        }
+
+        /// <summary>
+        /// Get webhook details
+        /// </summary>
+        public async Task<Webhook> GetWebhookAsync(string webhookId)
+        {
+            return await GetAsync<Webhook>($"/webhooks/{webhookId}");
+        }
+
+        /// <summary>
+        /// Update webhook
+        /// </summary>
+        public async Task<Webhook> UpdateWebhookAsync(string webhookId, WebhookUpdateRequest request)
+        {
+            return await PatchAsync<Webhook>($"/webhooks/{webhookId}", request);
+        }
+
+        /// <summary>
+        /// Delete webhook
+        /// </summary>
+        public async Task DeleteWebhookAsync(string webhookId)
+        {
+            await DeleteAsync($"/webhooks/{webhookId}");
+        }
+
+        /// <summary>
+        /// Test webhook
+        /// </summary>
+        public async Task TestWebhookAsync(string webhookId)
+        {
+            await PostAsync<object>($"/webhooks/{webhookId}/test", null);
+        }
+
+        // Analytics
+
+        /// <summary>
+        /// Get analytics data
+        /// </summary>
+        public async Task<Analytics> GetAnalyticsAsync(AnalyticsRequest request)
+        {
+            // Convert DateTime to string if needed
+            var queryParams = new Dictionary<string, string>();
+            if (!string.IsNullOrEmpty(request.AppId))
+                queryParams["app_id"] = request.AppId;
+            if (!string.IsNullOrEmpty(request.StartDate))
+                queryParams["start_date"] = request.StartDate;
+            if (!string.IsNullOrEmpty(request.EndDate))
+                queryParams["end_date"] = request.EndDate;
+            if (!string.IsNullOrEmpty(request.Metric))
+                queryParams["metric"] = request.Metric;
+            if (!string.IsNullOrEmpty(request.Period))
+                queryParams["period"] = request.Period;
+            if (!string.IsNullOrEmpty(request.GroupBy))
+                queryParams["group_by"] = request.GroupBy;
+            
+            return await GetAsync<Analytics>("/analytics/stats", queryParams);
+        }
+
+        /// <summary>
+        /// Get license analytics
+        /// </summary>
+        public async Task<Analytics> GetLicenseAnalyticsAsync(string licenseId)
+        {
+            return await GetAsync<Analytics>($"/licenses/{licenseId}/analytics");
+        }
+
+        /// <summary>
+        /// Get usage statistics
+        /// </summary>
+        public async Task<UsageStats> GetUsageStatsAsync(UsageStatsRequest request)
+        {
+            var queryParams = new Dictionary<string, string>();
+            if (!string.IsNullOrEmpty(request.AppId)) queryParams["app_id"] = request.AppId;
+            if (request.StartDate.HasValue) queryParams["start_date"] = request.StartDate.Value.ToString("yyyy-MM-ddTHH:mm:ssZ");
+            if (request.EndDate.HasValue) queryParams["end_date"] = request.EndDate.Value.ToString("yyyy-MM-ddTHH:mm:ssZ");
+            if (!string.IsNullOrEmpty(request.Period)) queryParams["period"] = request.Period;
+            if (!string.IsNullOrEmpty(request.Granularity)) queryParams["granularity"] = request.Granularity;
+            if (!string.IsNullOrEmpty(request.UserId)) queryParams["user_id"] = request.UserId;
+            if (!string.IsNullOrEmpty(request.ProductId)) queryParams["product_id"] = request.ProductId;
+
+            return await GetAsync<UsageStats>("/analytics/usage", queryParams);
+        }
+
+        // System Status
+
+        /// <summary>
+        /// Get system status
+        /// </summary>
+        public async Task<SystemStatus> GetSystemStatusAsync()
+        {
+            return await GetAsync<SystemStatus>("/health");
+        }
+
+        /// <summary>
+        /// Get health check
+        /// </summary>
+        public async Task<HealthCheck> GetHealthCheckAsync()
+        {
+            return await GetAsync<HealthCheck>("/health");
+        }
+
+        // HTTP Methods
+
+        protected async Task<T> GetAsync<T>(string endpoint, Dictionary<string, string>? queryParams = null)
+        {
+            var url = BuildUrl(endpoint);
+            if (queryParams != null && queryParams.Count > 0)
+            {
+                var queryString = new StringBuilder("?");
+                foreach (var param in queryParams)
+                {
+                    queryString.Append($"{Uri.EscapeDataString(param.Key)}={Uri.EscapeDataString(param.Value)}&");
+                }
+                url += queryString.ToString().TrimEnd('&');
+            }
+
+            var response = await _httpClient.GetAsync(url);
+            return await HandleResponseAsync<T>(response);
+        }
+
+        protected async Task<T> PostAsync<T>(string endpoint, object data)
+        {
+            var json = data != null ? JsonConvert.SerializeObject(data, _jsonSettings) : "{}";
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync(BuildUrl(endpoint), content);
+            return await HandleResponseAsync<T>(response);
+        }
+
+        protected async Task<T> PatchAsync<T>(string endpoint, object data)
+        {
+            var json = data != null ? JsonConvert.SerializeObject(data, _jsonSettings) : "{}";
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PatchAsync(BuildUrl(endpoint), content);
+            return await HandleResponseAsync<T>(response);
+        }
+
+        protected async Task DeleteAsync(string endpoint)
+        {
+            var response = await _httpClient.DeleteAsync(BuildUrl(endpoint));
+            await HandleResponseAsync<object>(response);
+        }
+
+        protected string BuildUrl(string endpoint)
+        {
+            return _baseUrl + NormalizeEndpoint(endpoint);
+        }
+
+        protected string NormalizeEndpoint(string endpoint)
+        {
+            var baseHasV1 = _baseUrl.EndsWith("/v1", StringComparison.OrdinalIgnoreCase);
+            if (endpoint.StartsWith("/v1/", StringComparison.OrdinalIgnoreCase))
+            {
+                return baseHasV1 ? endpoint.Substring(3) : endpoint;
+            }
+
+            if (endpoint.StartsWith("/", StringComparison.Ordinal))
+            {
+                return baseHasV1 ? endpoint : "/v1" + endpoint;
+            }
+
+            return baseHasV1 ? "/" + endpoint : "/v1/" + endpoint;
+        }
+
+        private static string NormalizeBaseUrl(string baseUrl)
+        {
+            var normalized = string.IsNullOrWhiteSpace(baseUrl)
+                ? "https://api.licensechain.app/v1"
+                : baseUrl.Trim().TrimEnd('/');
+            return normalized.EndsWith("/v1", StringComparison.OrdinalIgnoreCase)
+                ? normalized
+                : normalized + "/v1";
+        }
+
+        private async Task<T> HandleResponseAsync<T>(HttpResponseMessage response)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(content);
+                throw CreateException(response.StatusCode, errorResponse);
+            }
+
+            if (typeof(T) == typeof(object) || string.IsNullOrEmpty(content))
+            {
+                return default(T);
+            }
+
+            return JsonConvert.DeserializeObject<T>(content, _jsonSettings);
+        }
+
+        private Exception CreateException(System.Net.HttpStatusCode statusCode, ErrorResponse? errorResponse)
+        {
+            var message = errorResponse?.Error ?? errorResponse?.Message ?? "An error occurred";
+            var code = errorResponse?.ErrorCode;
+            var details = errorResponse?.Details;
+
+            return statusCode switch
+            {
+                System.Net.HttpStatusCode.BadRequest => new ValidationException(message),
+                System.Net.HttpStatusCode.Unauthorized => new AuthenticationException(message),
+                System.Net.HttpStatusCode.Forbidden => new AuthenticationException(message),
+                System.Net.HttpStatusCode.NotFound => new NotFoundException(message),
+                System.Net.HttpStatusCode.TooManyRequests => new RateLimitException(message),
+                System.Net.HttpStatusCode.InternalServerError => new ServerException(message),
+                System.Net.HttpStatusCode.BadGateway => new ServerException(message),
+                System.Net.HttpStatusCode.ServiceUnavailable => new ServerException(message),
+                System.Net.HttpStatusCode.GatewayTimeout => new ServerException(message),
+                _ => new LicenseChainException(code ?? "UNKNOWN_ERROR", message, (int)statusCode)
+            };
+        }
+
+        private static string GenerateDefaultHwuid()
+        {
+            var raw = $"licensechain|csharp|{Environment.MachineName}|{Environment.OSVersion}|{Environment.ProcessorCount}";
+            using var sha = SHA256.Create();
+            var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(raw));
+            return Convert.ToHexString(bytes).ToLowerInvariant();
+        }
+
+        /// <summary>
+        /// Dispose the client
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed && disposing)
+            {
+                _httpClient?.Dispose();
+                _disposed = true;
+            }
+        }
+    }
+}
