@@ -445,3 +445,6 @@ docs/_build/
 # Local agent / OPSEC
 .claude/
 CLAUDE.md
+.vscode/
+bin/
+obj/
