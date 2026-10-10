@@ -17,7 +17,7 @@ jobs:
         dotnet-version: ['8.0', '10.0']
     
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     
     - name: Set up .NET ${{ matrix.dotnet-version }}
       uses: actions/setup-dotnet@v4
@@ -40,7 +40,7 @@ jobs:
     if: github.event_name == 'release' && github.event.action == 'published'
     
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     
     - name: Set up .NET
       uses: actions/setup-dotnet@v4
