@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/license-Elastic--2.0-blue.svg)](LICENSE)
 [![C#](https://img.shields.io/badge/C%23-8.0+-blue.svg)](https://docs.microsoft.com/en-us/dotnet/csharp/)
-[![.NET](https://img.shields.io/badge/.NET-6.0+-green.svg)](https://dotnet.microsoft.com/)
+[![.NET](https://img.shields.io/badge/.NET-10.0-green.svg)](https://dotnet.microsoft.com/)
 
 Official C# SDK for LicenseChain - Secure license management for .NET applications.
 
@@ -23,10 +23,10 @@ Official C# SDK for LicenseChain - Secure license management for .NET applicatio
 
 ```bash
 # Install via Package Manager Console
-Install-Package LicenseChain.SDK
+Install-Package LicenseChain.CSharp.SDK
 
 # Or via .NET CLI
-dotnet add package LicenseChain.SDK
+dotnet add package LicenseChain.CSharp.SDK --version 1.0.2
 ```
 
 ### Method 2: PackageReference
@@ -34,7 +34,7 @@ dotnet add package LicenseChain.SDK
 Add to your `.csproj`:
 
 ```xml
-<PackageReference Include="LicenseChain.SDK" Version="1.0.0" />
+<PackageReference Include="LicenseChain.CSharp.SDK" Version="1.0.2" />
 ```
 
 ### Method 3: Manual Installation
@@ -48,7 +48,7 @@ Add to your `.csproj`:
 ### Basic Setup
 
 ```csharp
-using LicenseChain.SDK;
+using LicenseChain.CSharp.SDK;
 
 class Program
 {
@@ -501,7 +501,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 ### Development Setup
 
 1. Clone the repository
-2. Install .NET 6.0 or later
+2. Install .NET 10.0 or later
 3. Build: `dotnet build`
 4. Test: `dotnet test`
 
@@ -511,7 +511,7 @@ This project is licensed under the Elastic License 2.0 (ELv2) — see the [LICEN
 
 ## 🆘 Support
 
-- **Documentation**: [https://docs.licensechain.app/csharp](https://docs.licensechain.app/csharp)
+- **Documentation**: [https://docs.licensechain.app/en/sdk](https://docs.licensechain.app/en/sdk)
 - **Issues**: [GitHub Issues](https://github.com/LicenseChain/LicenseChain-CSharp-SDK/issues)
 - **Discord**: [LicenseChain Discord](https://discord.gg/licensechain)
 - **Email**: support@licensechain.app

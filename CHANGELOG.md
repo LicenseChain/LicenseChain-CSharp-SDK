@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.2] - 2026-10-11
+
+- Updated .NET badge and install snippets to net10.0 / LicenseChain.CSharp.SDK.
+- Set PackageProjectUrl to https://licensechain.app and copyright to LicenseChain LLC.
+
 ## [1.0.1] - 2026-10-10
 
 - Relicensed public surface under Elastic License 2.0 (ELv2).
