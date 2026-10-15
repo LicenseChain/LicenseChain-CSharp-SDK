@@ -220,8 +220,6 @@ All endpoints target the LicenseChain HTTP API at `https://api.licensechain.app/
 | POST | /v1/webhooks | Create webhook |
 | GET | /v1/analytics | Get analytics |
 
-**Note:** The SDK automatically prepends `/v1` to all endpoints, so you only need to specify the path (e.g., `/auth/login` instead of `/v1/auth/login`).
-
 ## API Reference
 
 See the [LicenseChain SDK docs](https://docs.licensechain.app/en/sdk) for full HTTP and client method reference. Repository examples and inline docs cover language-specific usage.
