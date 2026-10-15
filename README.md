@@ -4,6 +4,7 @@
 [![C#](https://img.shields.io/badge/C%23-8.0+-blue.svg)](https://docs.microsoft.com/en-us/dotnet/csharp/)
 [![.NET](https://img.shields.io/badge/.NET-10.0-green.svg)](https://dotnet.microsoft.com/)
 [![NuGet](https://img.shields.io/nuget/v/LicenseChain.CSharp.SDK)](https://www.nuget.org/packages/LicenseChain.CSharp.SDK)
+[![Downloads](https://img.shields.io/nuget/dt/LicenseChain.CSharp.SDK)](https://www.nuget.org/packages/LicenseChain.CSharp.SDK)
 [![CI](https://github.com/LicenseChain/LicenseChain-CSharp-SDK/actions/workflows/ci.yml/badge.svg)](https://github.com/LicenseChain/LicenseChain-CSharp-SDK/actions/workflows/ci.yml)
 
 Official C# SDK for LicenseChain - Secure license management for .NET applications.
