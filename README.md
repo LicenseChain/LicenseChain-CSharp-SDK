@@ -196,7 +196,35 @@ client.SetWebhookHandler(async (eventName, data) =>
 await client.StartWebhookListenerAsync();
 ```
 
-## 📚 API Reference
+## 📚 API Endpoints
+
+All endpoints target the LicenseChain HTTP API at `https://api.licensechain.app/v1`. The client accepts either the canonical `/v1` base or the root host and normalizes requests to the same API version.
+
+### Base URL
+
+- **Production**: `https://api.licensechain.app/v1`
+- **Development**: `https://api.licensechain.app/v1`
+
+### Available Endpoints
+
+| Method | Endpoint | Description |
+| -------- | ---------- | --------------- |
+| GET | /v1/health | Health check |
+| POST | /v1/auth/login | User login |
+| POST | /v1/auth/register | User registration |
+| GET | /v1/apps | List applications |
+| POST | /v1/apps | Create application |
+| GET | /v1/licenses | List licenses |
+| POST | /v1/licenses/verify | Verify license |
+| GET | /v1/webhooks | List webhooks |
+| POST | /v1/webhooks | Create webhook |
+| GET | /v1/analytics | Get analytics |
+
+**Note:** The SDK automatically prepends `/v1` to all endpoints, so you only need to specify the path (e.g., `/auth/login` instead of `/v1/auth/login`).
+
+## API Reference
+
+See the [LicenseChain SDK docs](https://docs.licensechain.app/en/sdk) for full HTTP and client method reference. Repository examples and inline docs cover language-specific usage.
 
 ### LicenseChainClient
 
@@ -502,34 +530,3 @@ This project is licensed under the Elastic License 2.0 (ELv2) — see the [LICEN
 ---
 
 **Made with ❤️ for the .NET community**
-
-
-## 📚 API Endpoints
-
-All endpoints target the LicenseChain HTTP API at `https://api.licensechain.app/v1`. The client accepts either the canonical `/v1` base or the root host and normalizes requests to the same API version.
-
-### Base URL
-
-- **Production**: `https://api.licensechain.app/v1`
-- **Development**: `https://api.licensechain.app/v1`
-
-### Available Endpoints
-
-| Method | Endpoint | Description |
-| -------- | ---------- | --------------- |
-| GET | /v1/health | Health check |
-| POST | /v1/auth/login | User login |
-| POST | /v1/auth/register | User registration |
-| GET | /v1/apps | List applications |
-| POST | /v1/apps | Create application |
-| GET | /v1/licenses | List licenses |
-| POST | /v1/licenses/verify | Verify license |
-| GET | /v1/webhooks | List webhooks |
-| POST | /v1/webhooks | Create webhook |
-| GET | /v1/analytics | Get analytics |
-
-**Note:** The SDK automatically prepends `/v1` to all endpoints, so you only need to specify the path (e.g., `/auth/login` instead of `/v1/auth/login`).
-
-## API Reference
-
-See the [LicenseChain SDK docs](https://docs.licensechain.app/en/sdk) for full HTTP and client method reference. Repository examples and inline docs cover language-specific usage.
