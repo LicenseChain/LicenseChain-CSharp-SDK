@@ -521,9 +521,9 @@ This project is licensed under the Elastic License 2.0 (ELv2) — see the [LICEN
 
 ## 🔗 Related Projects
 
-- [LicenseChain JavaScript SDK](https://github.com/LicenseChain/LicenseChain-JavaScript-SDK)
-- [LicenseChain Python SDK](https://github.com/LicenseChain/LicenseChain-Python-SDK)
-- [LicenseChain Node.js SDK](https://github.com/LicenseChain/LicenseChain-NodeJS-SDK)
+- [LicenseChain VB.NET SDK](https://github.com/LicenseChain/LicenseChain-VB-SDK)
+- [LicenseChain Unity SDK](https://github.com/LicenseChain/LicenseChain-Unity-SDK)
+- [LicenseChain Java SDK](https://github.com/LicenseChain/LicenseChain-Java-SDK)
 ---
 
 **Made with ❤️ for the .NET community**
@@ -542,4 +542,3 @@ This SDK targets the **LicenseChain HTTP API v1** implemented by the LicenseChai
   - PATCH /licenses/:id/activate
   - PATCH /licenses/:id/extend
   - GET /analytics/stats
-
