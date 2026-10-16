@@ -1,6 +1,6 @@
 # Contributing to LicenseChain C# SDK
 
-Thanks for helping improve this SDK. Maintained by **LicenseChain** ([support@licensechain.app](mailto:support@licensechain.app)).
+Thanks for helping improve this SDK.
 
 ## License
 

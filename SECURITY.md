@@ -11,7 +11,7 @@
 
 Do **not** open a public GitHub issue for security vulnerabilities.
 
-Email **LicenseChain** at [support@licensechain.app](mailto:support@licensechain.app) or [security@licensechain.app](mailto:security@licensechain.app) with:
+Email [security@licensechain.app](mailto:security@licensechain.app) with:
 
 - Description of the issue
 - Steps to reproduce
