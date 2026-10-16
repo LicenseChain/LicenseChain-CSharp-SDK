@@ -424,7 +424,13 @@ namespace LicenseChain
         public bool VerifyWebhook(string payload, string signature)
         {
             var expectedSignature = GenerateWebhookSignature(payload);
-            return expectedSignature == signature;
+            var provided = (signature ?? string.Empty).Trim();
+            if (provided.StartsWith("sha256=", StringComparison.OrdinalIgnoreCase))
+                provided = provided.Substring(7);
+            var expectedBytes = System.Text.Encoding.UTF8.GetBytes(expectedSignature.ToLowerInvariant());
+            var providedBytes = System.Text.Encoding.UTF8.GetBytes(provided.ToLowerInvariant());
+            return expectedBytes.Length == providedBytes.Length
+                && CryptographicOperations.FixedTimeEquals(expectedBytes, providedBytes);
         }
 
         /// <summary>

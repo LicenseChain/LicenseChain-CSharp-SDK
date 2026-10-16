@@ -147,7 +147,13 @@ namespace LicenseChain.CSharp.SDK.Utils
         public static bool VerifyWebhookSignature(string payload, string signature, string secret)
         {
             var expectedSignature = CreateWebhookSignature(payload, secret);
-            return string.Equals(signature, expectedSignature, StringComparison.OrdinalIgnoreCase);
+            var provided = (signature ?? string.Empty).Trim();
+            if (provided.StartsWith("sha256=", StringComparison.OrdinalIgnoreCase))
+                provided = provided.Substring(7);
+            var expectedBytes = Encoding.UTF8.GetBytes(expectedSignature.ToLowerInvariant());
+            var providedBytes = Encoding.UTF8.GetBytes(provided.ToLowerInvariant());
+            return expectedBytes.Length == providedBytes.Length
+                && CryptographicOperations.FixedTimeEquals(expectedBytes, providedBytes);
         }
 
         public static string RetryWithBackoff<T>(Func<T> func, int maxRetries = 3, int initialDelayMs = 1000)
