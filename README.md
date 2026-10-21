@@ -29,7 +29,7 @@ Official C# SDK for LicenseChain - Secure license management for .NET applicatio
 Install-Package LicenseChain.CSharp.SDK
 
 # Or via .NET CLI
-dotnet add package LicenseChain.CSharp.SDK --version 1.0.2
+dotnet add package LicenseChain.CSharp.SDK --version 1.0.3
 ```
 
 ### Method 2: PackageReference
@@ -37,7 +37,7 @@ dotnet add package LicenseChain.CSharp.SDK --version 1.0.2
 Add to your `.csproj`:
 
 ```xml
-<PackageReference Include="LicenseChain.CSharp.SDK" Version="1.0.2" />
+<PackageReference Include="LicenseChain.CSharp.SDK" Version="1.0.3" />
 ```
 
 ### Method 3: Manual Installation

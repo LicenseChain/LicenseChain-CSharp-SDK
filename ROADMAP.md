@@ -18,3 +18,6 @@
 - **Docs sync**: README points at `https://docs.licensechain.app/en/sdk`; default API base documented as `https://api.licensechain.app/v1`.
 - **Branch opsec**: land experiments on `dev`; promote to `main` only for release-ready changes.
 
+## Ecosystem Notes
+
+- Local validation on Linux: `dotnet build` and `dotnet run --project tests/HwuidHashSpec` (README `dotnet test` has no MSTest/xUnit project yet).
